@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>DA 63% कैलकुलेटर</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans Devanagari',sans-serif;background:#eef2ff;color:#1a1a2e;min-height:100vh}
+.header{background:linear-gradient(135deg,#1a237e,#283593);color:#fff;padding:18px 20px 14px;text-align:center}
+.header h2{font-size:17px;font-weight:700;line-height:1.3}
+.header p{font-size:11px;color:rgba(255,255,255,.7);margin-top:4px}
+.badge{display:inline-block;background:#43a047;color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-top:6px}
+.body{max-width:520px;margin:0 auto;padding:16px}
+
+.card{background:#fff;border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.07)}
+
+.lbl{font-size:12px;color:#666;font-weight:600;margin-bottom:6px;display:block}
+.inp{width:100%;padding:12px 14px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:15px;font-family:inherit;outline:none;transition:.2s}
+.inp:focus{border-color:#3949ab}
+
+.lgrid{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.lb{padding:7px 13px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:12px;font-weight:600;background:#fff;cursor:pointer;transition:.2s;font-family:inherit}
+.lb.on{background:#1a237e;color:#fff;border-color:#1a237e}
+
+.btn{width:100%;padding:14px;background:linear-gradient(135deg,#1a237e,#3949ab);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:4px}
+
+/* Result */
+.result{display:none}
+.result.show{display:block}
+
+.diff-box{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-radius:14px;padding:18px;text-align:center;margin-bottom:14px;border:1.5px solid #a5d6a7}
+.diff-lbl{font-size:12px;color:#2e7d32;font-weight:600}
+.diff-val{font-size:32px;font-weight:900;color:#1b5e20;margin:4px 0}
+.diff-sub{font-size:12px;color:#388e3c}
+
+.row-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0}
+.rh{font-size:11px;color:#999;padding:8px 4px;border-bottom:2px solid #f0f0f0;font-weight:700}
+.rh:nth-child(2),.rh:nth-child(3){text-align:right}
+.rc{font-size:12px;padding:10px 4px;border-bottom:1px solid #f5f5f5;color:#444}
+.rc.bold{font-weight:800;color:#1a237e}
+.rc.right{text-align:right}
+.rc.green{color:#2e7d32;font-weight:700}
+.rc.old{color:#999;text-decoration:line-through;text-align:right}
+
+.gross-box{background:#1a237e;border-radius:12px;padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.gb-item{text-align:center}
+.gb-lbl{font-size:10px;color:rgba(255,255,255,.7);margin-bottom:3px}
+.gb-val{font-size:16px;font-weight:800;color:#fff}
+.gb-val.new{font-size:19px;color:#a5d6a7}
+
+.info-box{background:#fff3e0;border-radius:10px;padding:12px;font-size:11px;color:#e65100;line-height:1.6;border:1px solid #ffe0b2}
+
+.arrear-box{background:#f3e5f5;border-radius:12px;padding:14px;margin-bottom:14px;border:1.5px solid #ce93d8}
+.arrear-title{font-size:12px;font-weight:700;color:#6a1b9a;margin-bottom:10px}
+.arrear-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #e1bee7;font-size:12px}
+.arrear-row:last-child{border:none;font-weight:800;color:#4a148c;font-size:13px}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="header">
+  <h2>💰 DA 63% कैलकुलेटर</h2>
+  <p>राजस्थान सरकारी कर्मचारी — नई सैलरी गणना</p>
+  <span class="badge">DA 60% → 63% (जनवरी 2026 से)</span>
+</div>
+
+<div class="body">
+
+  <div class="card">
+    <span class="lbl">मूल वेतन (Basic Pay) ₹</span>
+    <input type="number" class="inp" id="basic" placeholder="जैसे: 44300" oninput="calc()">
+
+    <div style="margin-top:14px">
+      <span class="lbl">Pay Level चुनें</span>
+      <div class="lgrid" id="lgrid"></div>
+    </div>
+
+    <div style="margin-top:14px">
+      <span class="lbl">HRA श्रेणी</span>
+      <div class="lgrid">
+        <button class="lb on" id="h10" onclick="setHRA(10)">अन्य शहर (10%)</button>
+        <button class="lb" id="h20" onclick="setHRA(20)">बड़ा शहर (20%)</button>
+        <button class="lb" id="h0" onclick="setHRA(0)">सरकारी आवास (0%)</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="result" id="result">
+
+    <div class="diff-box">
+      <div class="diff-lbl">प्रतिमाह वेतन वृद्धि</div>
+      <div class="diff-val" id="diff">₹0</div>
+      <div class="diff-sub" id="diff-sub">नई Gross − पुरानी Gross</div>
+    </div>
+
+    <div class="gross-box">
+      <div class="gb-item">
+        <div class="gb-lbl">पुरानी Gross (DA 60%)</div>
+        <div class="gb-val" id="old-gross">₹0</div>
+      </div>
+      <div class="gb-item">
+        <div class="gb-lbl">नई Gross (DA 63%)</div>
+        <div class="gb-val new" id="new-gross">₹0</div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:14px">
+      <div class="row-grid">
+        <div class="rh">मद</div>
+        <div class="rh" style="text-align:right">DA 60%</div>
+        <div class="rh" style="text-align:right">DA 63%</div>
+
+        <div class="rc">मूल वेतन</div>
+        <div class="rc right" id="r-basic-old">—</div>
+        <div class="rc right bold" id="r-basic-new">—</div>
+
+        <div class="rc">DA</div>
+        <div class="rc right old" id="r-da-old">—</div>
+        <div class="rc right green" id="r-da-new">—</div>
+
+        <div class="rc">HRA</div>
+        <div class="rc right" id="r-hra-old">—</div>
+        <div class="rc right" id="r-hra-new">—</div>
+
+        <div class="rc bold" style="color:#1a237e">कुल Gross</div>
+        <div class="rc right" id="r-gross-old" style="font-weight:700">—</div>
+        <div class="rc right bold green" id="r-gross-new">—</div>
+      </div>
+    </div>
+
+    <div class="arrear-box">
+      <div class="arrear-title">📋 DA Arrear — GPF में जमा (जुलाई–अक्टूबर 2026)</div>
+      <div style="font-size:11px;color:#7b1fa2;margin-bottom:8px;background:#f8f0ff;padding:6px 8px;border-radius:6px">⚠️ यह Arrear नकद नहीं मिलेगा — GPF खाते में जमा होगा</div>
+      <div class="arrear-row"><span>जुलाई 2026</span><span id="arr-1">—</span></div>
+      <div class="arrear-row"><span>अगस्त 2026</span><span id="arr-2">—</span></div>
+      <div class="arrear-row"><span>सितंबर 2026</span><span id="arr-3">—</span></div>
+      <div class="arrear-row"><span>अक्टूबर 2026</span><span id="arr-4">—</span></div>
+      <div class="arrear-row"><span>कुल Arrear (4 माह) → GPF</span><span id="arr-total">—</span></div>
+    </div>
+
+    <div class="info-box">
+      ⚠️ यह गणना सांकेतिक एवं शैक्षणिक उद्देश्यों के लिए है। वास्तविक वेतन में NPS, Income Tax एवं अन्य कटौतियाँ अलग होंगी। DA 63% जुलाई 2026 से प्रभावी माना गया है। Arrear (जुलाई–अक्टूबर) GPF खाते में जमा होगा।
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+const fmt = n => '₹' + Math.round(n).toLocaleString('en-IN');
+
+const M = {
+  1:[17700,18200,18700,19300,19900,20500,21100,21700,22400,23100],
+  2:[17900,18400,19000,19600,20200,20800,21400,22000,22700,23400],
+  3:[18200,18700,19300,19900,20500,21100,21700,22400,23100,23800],
+  4:[19200,19800,20400,21000,21600,22200,22900,23600,24300,25000],
+  5:[20800,21400,22000,22700,23400,24100,24800,25500,26300,27100],
+  6:[21500,22100,22800,23500,24200,24900,25600,26400,27200,28000],
+  7:[22400,23100,23800,24500,25200,26000,26800,27600,28400,29300],
+  8:[24500,25200,26000,26800,27600,28400,29300,30200,31100,32000],
+  9:[26300,27100,27900,28700,29600,30500,31400,32300,33300,34300],
+  10:[33800,34800,35800,36900,38000,39100,40300,41500,42700,44000,45300,46700,48100,49500,51000,52500,54100,55700,57400,59100,60900,62700,64600,66500,68500,70600,72700,74900,77100,79400,81800,84300,86800,89400,92100,94900,97700,100600,103600,106700],
+  11:[37800,38900,40100,41300,42500,43800,45100,46500,47900,49300,50800,52300,53900,55500,57200,58900,60700,62500,64400,66300,68300,70300,72400,74600,76800,79100,81500,83900,86400,89000,91700,94500,97300,100200,103200,106300,109500,112800,116200,119700],
+  12:[44300,45600,47000,48400,49900,51400,52900,54500,56100,57800,59500,61300,63100,65000,67000,69000,71100,73200,75400,77700,80000,82400,84900,87400,90000,92700,95500,98400,101400,104400,107500,110700,114000,117400,120900,124500,128200,132000,136000,140100],
+  13:[47000,48400,49900,51400,52900,54500,56100,57800,59500,61300,63100,65000,67000,69000,71100,73200,75400,77700,80000,82400,84900,87400,90000,92700,95500,98400,101400,104400,107500,110700],
+  14:[53500,55100,56800,58500,60300,62100,64000,65900,67900,69900],
+  15:[56100,57800,59500,61300,63100,65000,67000,69000,71100,73200],
+  16:[60800,62600,64500,66400,68400,70500,72600,74800,77000,79300],
+  17:[67300,69300,71400,73500,75700,78000,80300,82700,85200,87800]
+};
+
+let selLv = null;
+let selHRA = 10;
+
+// Level grid बनाएं
+const g = document.getElementById('lgrid');
+Object.keys(M).forEach(l => {
+  const b = document.createElement('button');
+  b.className = 'lb';
+  b.textContent = 'L-' + l;
+  b.onclick = () => { selLv = parseInt(l); setActive(b); calc(); };
+  g.appendChild(b);
+});
+
+function setActive(btn) {
+  document.querySelectorAll('#lgrid .lb').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+function setHRA(r) {
+  selHRA = r;
+  ['h10','h20','h0'].forEach(id => document.getElementById(id).classList.remove('on'));
+  const map = {10:'h10', 20:'h20', 0:'h0'};
+  document.getElementById(map[r]).classList.add('on');
+  calc();
+}
+
+function calc() {
+  const basic = parseInt(document.getElementById('basic').value) || 0;
+  if (!basic || basic < 1000) { document.getElementById('result').classList.remove('show'); return; }
+
+  const da60 = Math.round(basic * 0.60);
+  const da63 = Math.round(basic * 0.63);
+  const hra  = Math.round(basic * selHRA / 100);
+
+  const oldG = basic + da60 + hra;
+  const newG = basic + da63 + hra;
+  const diff = newG - oldG;
+
+  document.getElementById('result').classList.add('show');
+
+  document.getElementById('diff').textContent = fmt(diff);
+  document.getElementById('diff-sub').textContent = `${fmt(newG)} − ${fmt(oldG)}`;
+  document.getElementById('old-gross').textContent = fmt(oldG);
+  document.getElementById('new-gross').textContent = fmt(newG);
+
+  document.getElementById('r-basic-old').textContent = fmt(basic);
+  document.getElementById('r-basic-new').textContent = fmt(basic);
+  document.getElementById('r-da-old').textContent = fmt(da60);
+  document.getElementById('r-da-new').textContent = fmt(da63);
+  document.getElementById('r-hra-old').textContent = fmt(hra);
+  document.getElementById('r-hra-new').textContent = fmt(hra);
+  document.getElementById('r-gross-old').textContent = fmt(oldG);
+  document.getElementById('r-gross-new').textContent = fmt(newG);
+
+  // Arrear जुलाई–अक्टूबर 2026 (4 माह) — GPF में जमा
+  document.getElementById('arr-1').textContent = fmt(diff);
+  document.getElementById('arr-2').textContent = fmt(diff);
+  document.getElementById('arr-3').textContent = fmt(diff);
+  document.getElementById('arr-4').textContent = fmt(diff);
+  document.getElementById('arr-total').textContent = fmt(diff * 4);
+}
+</script>
+</body>
+</html>
